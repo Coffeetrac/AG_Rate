@@ -35,25 +35,25 @@ volatile unsigned long pulseCountRight = 0, pulseDurationRight;
 
 void setup()
 {
-	pinMode(LED_PIN, OUTPUT); //configure LED for output
-	pinMode(RELAY1_PIN, OUTPUT); //configure RELAY1 for output //Pin 5
-	pinMode(RELAY2_PIN, OUTPUT); //configure RELAY2 for output //Pin 6
+  //pinMode(LED_PIN, OUTPUT); //configure LED for output
+  pinMode(RELAY1_PIN, OUTPUT); //configure RELAY1 for output //Pin 5
+  pinMode(RELAY2_PIN, OUTPUT); //configure RELAY2 for output //Pin 6
   pinMode(RELAY3_PIN, OUTPUT); //configure RELAY3 for output //Pin 7
   pinMode(RELAY4_PIN, OUTPUT); //configure RELAY4 for output //Pin 8
   pinMode(RELAY5_PIN, OUTPUT); //configure RELAY5 for output //Pin 9
   pinMode(RELAY6_PIN, OUTPUT); //configure RELAY6 for output //Pin 10
   pinMode(RELAY7_PIN, OUTPUT); //configure RELAY7 for output //Pin 13
-  pinMode(RELAY8_PIN, OUTPUT); //configure RELAY8 for output //Pin 5
-  pinMode(RELAY9_PIN, OUTPUT); //configure RELAY9 for output //Pin 6
-  pinMode(RELAY10_PIN, OUTPUT); //configure RELAY10 for output //Pin 5
-  pinMode(RELAY11_PIN, OUTPUT); //configure RELAY11 for output //Pin 6
-  pinMode(RELAY12_PIN, OUTPUT); //configure RELAY12 for output //Pin 6
-	//set up communication
-	Serial.begin(38400);
+  pinMode(RELAY8_PIN, OUTPUT); //configure RELAY8 for output //Pin A0
+  pinMode(RELAY9_PIN, OUTPUT); //configure RELAY9 for output //Pin A1
+  pinMode(RELAY10_PIN, OUTPUT); //configure RELAY10 for output //Pin A2
+  pinMode(RELAY11_PIN, OUTPUT); //configure RELAY11 for output //Pin A3
+  pinMode(RELAY12_PIN, OUTPUT); //configure RELAY12 for output //Pin A4
+  //set up communication
+  Serial.begin(38400);
 
-	//use CHANGE for more ticks per liter
-	attachInterrupt(digitalPinToInterrupt(encPinLeft), pinLeftChangeISR, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(encPinRight), pinRightChangeISR, CHANGE);
+  //use CHANGE for more ticks per liter
+  attachInterrupt(digitalPinToInterrupt(encPinLeft), pinLeftChangeISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encPinRight), pinRightChangeISR, CHANGE);
 }
 
 void loop()
