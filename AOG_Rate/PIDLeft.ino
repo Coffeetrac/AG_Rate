@@ -41,18 +41,21 @@ void calcRatePIDLeft(void) {
 	//if (pwmDriveLeft < -200) pwmDriveLeft = -200;
  }
 
- void motorDriveLeft(void) 
+
+ void motorDriveLeft(void)  // prepared for IBT_2
   {
     pwmDisplayLeft = pwmDriveLeft;
+   
     if (pwmDriveLeft >= 0) 
-	{
-		bitSet(PORTB, 4);  //set the correct direction
-	}
-    else   
     {
-		bitClear(PORTB, 4); 
-		pwmDriveLeft = -1 * pwmDriveLeft;  
-	}
-	analogWrite(PWM_PIN, pwmDriveLeft);
+      analogWrite(PWM1_PIN, pwmDriveLeft);
+      analogWrite(DIR1_PIN, 0);   //Set DIR PIN low
+    }
+    
+    else if (pwmDriveLeft <= 0)
+    {
+      pwmDriveLeft = -1 * pwmDriveLeft;  
+      analogWrite(DIR1_PIN, pwmDriveLeft);
+      analogWrite(PWM1_PIN, 0);//Set PWM PIN low
+    } 
   }
-

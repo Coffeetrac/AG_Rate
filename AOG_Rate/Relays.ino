@@ -1,29 +1,15 @@
    void SetRelays(void)
- {
-    if (bitRead(relayLo,0)) bitSet(PORTD, 5); //Digital Pin 5
-    else bitClear(PORTD, 5); 
-    if (bitRead(relayLo,1)) bitSet(PORTD, 6); //Digital Pin 6
-    else bitClear(PORTD, 6); 
-    if (bitRead(relayLo,2)) bitSet(PORTD, 7); //Digital Pin 7
-    else bitClear(PORTD, 7); 
-    if (bitRead(relayLo,3)) bitSet(PORTB, 0); //Digital Pin 8
-    else bitClear(PORTB, 0); 
-    if (bitRead(relayLo,4)) bitSet(PORTB, 1); //Digital Pin 9
-    else bitClear(PORTB, 1); 
-    if (bitRead(relayLo,5)) bitSet(PORTB, 2); //Digital Pin 10
-    else bitClear(PORTB, 2); 
-    if (bitRead(relayLo,6)) bitSet(PORTB, 5); //Digital Pin 13
-    else bitClear(PORTB, 5); 
-    if (bitRead(relayLo,7)) bitSet(PORTC, 0); //Analog Pin A0
-    else bitClear(PORTC, 0); 
-    if (bitRead(relayHi,0)) bitSet(PORTC, 1); //analog Pin A1
-    else bitClear(PORTC, 1); 
-    if (bitRead(relayHi,1)) bitSet(PORTC, 2); //Analog Pin A2
-    else bitClear(PORTC, 2);     
-    if (bitRead(relayHi,2)) bitSet(PORTC, 3); //Analog Pin A2
-    else bitClear(PORTC, 3);     
-    if (bitRead(relayHi,3)) bitSet(PORTC, 4); //Analog Pin A2
-    else bitClear(PORTC, 4);     
-    if (bitRead(relayHi,4)) bitSet(PORTC, 5); //Analog Pin A2
-    else bitClear(PORTC, 5);     
+ {  // Yes digitalWrite is slower, but much easier for the beginners 
+    if (bitRead(relayLo,0)) digitalWrite(RELAY1_PIN , ON); else digitalWrite(RELAY1_PIN , OFF);
+    if (bitRead(relayLo,1)) digitalWrite(RELAY2_PIN , ON); else digitalWrite(RELAY2_PIN , OFF);
+    if (bitRead(relayLo,2)) digitalWrite(RELAY3_PIN , ON); else digitalWrite(RELAY3_PIN , OFF);
+    if (bitRead(relayLo,3)) digitalWrite(RELAY4_PIN , ON); else digitalWrite(RELAY4_PIN , OFF);
+    if (bitRead(relayLo,4)) digitalWrite(RELAY5_PIN , ON); else digitalWrite(RELAY5_PIN , OFF);
+    if (bitRead(relayLo,5)) digitalWrite(RELAY6_PIN , ON); else digitalWrite(RELAY6_PIN , OFF);
+    if (bitRead(relayLo,6)) digitalWrite(RELAY7_PIN , ON); else digitalWrite(RELAY7_PIN , OFF);
+    if (bitRead(relayLo,7)) digitalWrite(RELAY8_PIN , ON); else digitalWrite(RELAY8_PIN , OFF);
+    if (bitRead(relayHi,0)) digitalWrite(RELAY9_PIN , ON); else digitalWrite(RELAY9_PIN , OFF);
+    if (bitRead(relayHi,1)) digitalWrite(RELAY10_PIN , ON); else digitalWrite(RELAY10_PIN , OFF);
+    if (bitRead(relayHi,2)) digitalWrite(RELAY11_PIN , ON); else digitalWrite(RELAY11_PIN , OFF);
+    if (bitRead(relayHi,3)) digitalWrite(RELAY12_PIN , ON); else digitalWrite(RELAY12_PIN , OFF);
  }

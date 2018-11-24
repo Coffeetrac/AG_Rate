@@ -1,26 +1,45 @@
-//#define LED_PIN 13
-#define WORKSW_PIN A5  //PD4
 
-#define   DIR_PIN    12  //PB4
-#define   PWM_PIN    11  //PB2
-// TODO pins for pwm of second valve
+//High-Active Relays
+#define ON  1
+#define OFF 0
 
-#define encPinLeft 2     //int0 D2 pin 2
-#define encPinRight 3     //int1 D3 pin 3
+//Low -Active Relays
+//#define ON  0
+//#define OFF 1
 
-#define RELAY1_PIN 5  //PD5
-#define RELAY2_PIN 6  //PD6
-#define RELAY3_PIN 7  //PD7
-#define RELAY4_PIN 8  //PD8
-#define RELAY5_PIN 9  //PD9
-#define RELAY6_PIN 10 //PD10
-#define RELAY7_PIN 13 //PD13
+// Pin Configuration
+#define WORKSW_PIN 4  //PD4
+
+#define DIR1_PIN   10  //PB2  // Flow Control Valve 1 Left
+#define PWM1_PIN   11  //PB3  // "
+
+//TODO -> pins for pwm of second valve ( maybe 5+6 )
+#define DIR2_PIN    0  //P??  // Flow Control Valve 2 Right
+#define PWM2_PIN    0  //P??  // "
+
+#define encPinLeft  2  //int0 D2 pin 2
+#define encPinRight 3  //int1 D3 pin 3
+
+#define RELAY1_PIN  5  //PD5
+#define RELAY2_PIN  6  //PD6
+#define RELAY3_PIN  7  //PD7
+#define RELAY4_PIN  8  //PB0
+#define RELAY5_PIN  9  //PB1
+#define RELAY6_PIN 12  //PB4
+#define RELAY7_PIN 13  //PB5
 #define RELAY8_PIN A0  //PC0
 #define RELAY9_PIN A1  //PC1
-#define RELAY10_PIN A2  //PC2
-#define RELAY11_PIN A3  //PC3
-#define RELAY12_PIN A4  //PC4
+#define RELAY10_PIN A2 //PC2
+#define RELAY11_PIN A3 //PC3
+#define RELAY12_PIN A4 //PC4
+
+#define AUTO_SW     A7  // Section Switches
+#define SECT1_SW    A6
+#define SECT2_SW    A5
+
+
 #include "Var.h";
+
 
 //loop time variables in microseconds
 const unsigned long LOOP_TIME = 200; //in msec = 5hz
@@ -28,7 +47,11 @@ unsigned long lastTime = LOOP_TIME;
 unsigned long currentTime = LOOP_TIME;
 unsigned int dT = 100;
 byte watchdogTimer = 0;
+
 byte SectMainToAOG = 0;  // output the Switches to AOG
+byte SectSWOffToAOG[]={0,0};
+byte RelayToAOG[]={0,0};
+bool autoMode=0,autoModeold=0;
 
 //the ISR counter
 volatile unsigned long pulseCountLeft = 0, pulseDurationLeft;
@@ -36,7 +59,6 @@ volatile unsigned long pulseCountRight = 0, pulseDurationRight;
 
 void setup()
 {
-  //pinMode(LED_PIN, OUTPUT); //configure LED for output
   pinMode(RELAY1_PIN, OUTPUT); //configure RELAY1 for output //Pin 5
   pinMode(RELAY2_PIN, OUTPUT); //configure RELAY2 for output //Pin 6
   pinMode(RELAY3_PIN, OUTPUT); //configure RELAY3 for output //Pin 7
@@ -49,7 +71,15 @@ void setup()
   pinMode(RELAY10_PIN, OUTPUT); //configure RELAY10 for output //Pin A2
   pinMode(RELAY11_PIN, OUTPUT); //configure RELAY11 for output //Pin A3
   pinMode(RELAY12_PIN, OUTPUT); //configure RELAY12 for output //Pin A4
+  pinMode(DIR1_PIN, OUTPUT);
+  pinMode(PWM1_PIN, OUTPUT);
+  
   pinMode(WORKSW_PIN, INPUT_PULLUP);
+
+  pinMode(AUTO_SW, INPUT);  // Auto/Manual Switch
+  pinMode(SECT1_SW, INPUT);
+  pinMode(SECT2_SW, INPUT_PULLUP);
+  
   
   //set up communication
   Serial.begin(38400);
@@ -147,12 +177,55 @@ void loop()
 			rateAppliedLPMRight = 0;
 		}
 
-		// read the workswitch
-    if (analogRead(WORKSW_PIN)>512) SectMainToAOG = 1;
-    else SectMainToAOG = 2;
+    // read the workswitch
+    if (digitalRead(WORKSW_PIN)) SectMainToAOG = 1; else SectMainToAOG = 2;
+    
+    // read the Auto/Manual Switch (A7 is only analogRead, no Pullup)
+    if (analogRead(AUTO_SW)>500) autoMode=1; else autoMode=0;
 
     
-		//turn on appropriate sections
+    
+    // read Section 1 Switch (A6 is only analogRead, no Pullup)
+    if (analogRead(SECT1_SW)<500){
+        SectSWOffToAOG[0] |= 0x01;    // Sw Off means permanent Off in Auto-Mode
+        RelayToAOG[0]     &= 0xFE;    // Sw Off means permanent Off in Manual-Mode
+      } 
+    else{
+        if (autoMode){
+          if (autoModeold==0) SectSWOffToAOG[0] |= 0x01; // short Off to switch back to SC
+          else SectSWOffToAOG[0] &= 0xFE;                // Sw On means Section Ctrl in Auto-Mode
+          RelayToAOG[0]    &= 0xFE;                      // No relay control
+          autoModeold=1;
+        }
+        if (autoMode==0){
+          SectSWOffToAOG[0] &= 0xFE;    // Sw On = No Switch Off control
+          RelayToAOG[0]     |= 0x01;    // Sw On means permanent On in Manual-Mode
+          autoModeold=0;
+        }
+      }
+
+
+    
+    // read Section 2 Switch  
+    if (digitalRead(SECT2_SW)==0){
+        SectSWOffToAOG[0] |= 0x02;    // Sw Off means permanent Off in Auto-Mode
+        RelayToAOG[0]     &= 0xFD;    // Sw Off means permanent Off in Manual-Mode
+      } 
+    else{
+        if (autoMode){
+          if (autoModeold==0) SectSWOffToAOG[0] |= 0x02; // short Off to switch back to SC
+          else SectSWOffToAOG[0] &= 0xFD;                // Sw On means Section Ctrl in Auto-Mode
+          RelayToAOG[0]    &= 0xFD;                      // No relay control
+          autoModeold=1;
+        }
+        if (autoMode==0){
+          SectSWOffToAOG[0] &= 0xFD;    // Sw On = No Switch Off control
+          RelayToAOG[0]     |= 0x02;    // Sw On means permanent On in Manual-Mode
+          autoModeold=0;
+        }
+      }
+    //turn on appropriate sections
+
 		SetRelays();
 
 		//Do the PID - this placed in code depending on valve style
@@ -176,14 +249,14 @@ void loop()
 			(float)accumulatedCountsRight / (float)flowmeterCalFactorRight));
     
     Serial.print(",");
-    //Serial.print(RelayToAOG[1]);
-    //Serial.print(",");
-    //Serial.print(RelayToAOG[0]);
-    //Serial.print(",");
-    //Serial.print(SectSWOffToAOG[1]);
-    //Serial.print(",");
-    //Serial.print(SectSWOffToAOG[0]);
-    Serial.print("0,0,0,0,");
+    Serial.print(RelayToAOG[1]);
+    Serial.print(",");
+    Serial.print(RelayToAOG[0]);
+    Serial.print(",");
+    Serial.print(SectSWOffToAOG[1]);
+    Serial.print(",");
+    Serial.print(SectSWOffToAOG[0]);
+    Serial.print(",");
     Serial.print(SectMainToAOG);
     Serial.println();
 		// flush out buffer
