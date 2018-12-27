@@ -64,7 +64,7 @@ void setup()
   pinMode(RELAY3_PIN, OUTPUT); //configure RELAY3 for output //Pin 7
   pinMode(RELAY4_PIN, OUTPUT); //configure RELAY4 for output //Pin 8
   pinMode(RELAY5_PIN, OUTPUT); //configure RELAY5 for output //Pin 9
-  pinMode(RELAY6_PIN, OUTPUT); //configure RELAY6 for output //Pin 10
+  pinMode(RELAY6_PIN, OUTPUT); //configure RELAY6 for output //Pin 12
   pinMode(RELAY7_PIN, OUTPUT); //configure RELAY7 for output //Pin 13
   pinMode(RELAY8_PIN, OUTPUT); //configure RELAY8 for output //Pin A0
   pinMode(RELAY9_PIN, OUTPUT); //configure RELAY9 for output //Pin A1
