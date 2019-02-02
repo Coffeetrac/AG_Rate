@@ -11,7 +11,7 @@
   #define SectSw 0        // 0 = Section Switches not installed
                           // 1 = Section Switches installed
 //Ethernet Details
-  #define EtherNet 1      // 0 = Serial/USB communcation with AOG
+  #define EtherNet 0      // 0 = Serial/USB communcation with AOG
                           // 1 = Ethernet comunication with AOG (using a ENC28J60 chip)
 
 //##########################################################################################################
